@@ -1,8 +1,8 @@
 #!/bin/sh
 
-# Startup script for the v4l2rtspserver extension package for MuntsOS
+# Post-Install script for zerotierone
 
-# Copyright (C)2021, Philip Munts, President, Munts AM Corp.
+# Copyright (C)2020, Philip Munts, President, Munts AM Corp.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -22,16 +22,16 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-. /usr/local/etc/v4l2rtspserver.conf
+if [ ! -f /usr/local/etc/zerotierone.conf ]; then
+cat <<EOD >/usr/local/etc/zerotierone.conf
+# Set to 1 to enable
+ENABLED=0
 
-[ x"$ENABLED" == "x1" ] || exit 0
+# default
+PORT=9993
+EOD
+chmod 444 /usr/local/etc/zerotierone.conf
+grep zt0_address /etc/network.conf 2>&2 > /dev/null || echo "zt0_address=up" >> /etc/network.conf
+fi
 
-# Open up ports defined in PORTLIST.
 
-for port in $PORTLIST ; do
-  for proto in tcp ; do
-    iptables -w -A INPUT -p $proto --dport $port -j ACCEPT
-  done
-done
-
-/usr/local/libexec/v4l2rtspserver $PARAMS &

@@ -1,8 +1,6 @@
-#!/bin/sh
+# Startup script for ZeroTierOne running on MuntsOS
 
-# Startup script for the v4l2rtspserver extension package for MuntsOS
-
-# Copyright (C)2021, Philip Munts, President, Munts AM Corp.
+# Copyright (C)2020, Philip Munts, President, Munts AM Corp.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -22,16 +20,15 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-. /usr/local/etc/v4l2rtspserver.conf
+. /usr/local/etc/zerotierone.conf
 
 [ x"$ENABLED" == "x1" ] || exit 0
 
-# Open up ports defined in PORTLIST.
+# Open up port defined in config.
 
-for port in $PORTLIST ; do
-  for proto in tcp ; do
-    iptables -w -A INPUT -p $proto --dport $port -j ACCEPT
-  done
-done
+[ -z "$PORT" ] && PORT=9993
+# Open up port in iptables
+iptables -w -A INPUT -p udp --dport $PORT -j ACCEPT
 
-/usr/local/libexec/v4l2rtspserver $PARAMS &
+/usr/sbin/zerotier-one -p$PORT -d
+
