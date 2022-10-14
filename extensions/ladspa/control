@@ -1,0 +1,7 @@
+Package: @@NAME@@
+Section: misc
+Priority: extra
+Maintainer: Faisal <faisal@pruxi.in>
+Architecture: @@ARCH@@
+Version: @@VERSION@@
+Description: LADSPA audio filtering library for use with ALSA

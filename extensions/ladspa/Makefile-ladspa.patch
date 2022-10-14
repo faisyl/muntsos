@@ -1,0 +1,25 @@
+--- Makefile	2021-09-10 08:44:43.000000000 +0000
++++ Makefile.ladspa	2022-10-14 07:40:04.447870839 +0000
+@@ -4,17 +4,17 @@
+ #
+ # Change these if you want to install somewhere else.
+ 
+-INSTALL_PLUGINS_DIR	=	/usr/lib/ladspa/
+-INSTALL_INCLUDE_DIR	=	/usr/include/
+-INSTALL_BINARY_DIR	=	/usr/bin/
++INSTALL_PLUGINS_DIR	=	../../$(PKGDIR)/usr/lib/ladspa/
++INSTALL_INCLUDE_DIR	=	../../$(PKGDIR)/usr/include/
++INSTALL_BINARY_DIR	=	../../$(PKGDIR)/usr/bin/
+ 
+ ###############################################################################
+ #
+ # GENERAL
+ #
+ 
+-INCLUDES	=	-I.
+-LIBRARIES	=	-ldl -lm -lsndfile
++INCLUDES	=	-I. -I$(SNDFILE)/include
++LIBRARIES	=	-ldl -lm -lsndfile -L$(SNDFILE)/lib
+ CFLAGS		=	$(INCLUDES) -Wall -Werror -O2 -fPIC 		\
+ 			-DDEFAULT_LADSPA_PATH=$(INSTALL_PLUGINS_DIR)
+ BINFLAGS	=	-fPIE -pie
