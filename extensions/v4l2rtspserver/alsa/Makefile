@@ -26,77 +26,26 @@ MUNTSOS		?= $(shell pwd)/../..
 include $(MUNTSOS)/include/$(BOARDNAME).mk
 include $(LIBSIMPLEIO)/include/dpkg.mk
 
-SRCURL		= https://github.com/mpromonet/v4l2rtspserver.git
-SRCDIR		= v4l2rtspserver.src
-SRCDIST		= /tmp/v4l2rtspserver.tgz
-
 OSNAME		= muntsos-$(BOARDBASE)
-PKGNAME		= v4l2rtspserver
+PKGNAME		= alsa
 PKGVERSION	= $(shell date +%Y.%j)
 PKGARCH		= $(DEBARCH)
 PKGDIR		= $(PKGNAME)-$(OSNAME)
 PKGFILE		= $(PKGDIR).deb
 
-CMAKEFLAGS	+= -DCMAKE_SYSTEM_NAME=Linux
-CMAKEFLAGS	+= -DCMAKE_C_COMPILER=$(CROSS_COMPILE)gcc
-CMAKEFLAGS	+= -DCMAKE_C_FLAGS=-I$(LIBSINCDIR)
-CMAKEFLAGS	+= -DCMAKE_CXX_COMPILER=$(CROSS_COMPILE)g++
-CMAKEFLAGS	+= -DCMAKE_CXX_FLAGS=-I$(LIBSINCDIR)
-
-ifdef WITHALSA
-ALSAPKGNAME	= alsa
-ALSAPKGDIR	= $(PKGNAME)-$(OSNAME)
-CMAKEFLAGS += -DCMAKE_PREFIX_PATH=alsa/$(ALSAPKGDIR)
-sound.check:
-	make -C alsa
-else
-sound.check:
-
-endif
-
 default: package.deb
 
-# Clone source repo and create source tarball
-
-$(SRCDIST):
-	git clone --recurse-submodules $(SRCURL) $(SRCDIR)
-	tar czf $@ --exclude='.*' $(SRCDIR)
-	rm -rf $(SRCDIR)
-
-
-
-# Unpack source tarball
-
-source.done: $(SRCDIST) sound.check
-	tar xzf $(SRCDIST)
-	touch $@
-
-# Compile sources
-
-build.done: source.done
-	cd $(SRCDIR) && cmake $(CMAKEFLAGS)
-	# Workaround for a cmake bug
-	sed -i 's@/usr/lib/x86_64-linux-gnu@$(LIBSLIBDIR)@g' v4l2rtspserver.src/CMakeFiles/v4l2rtspserver.dir/link.txt
-	$(MAKE) -C $(SRCDIR)
-	touch $@
-
-# Build the Debian package file
-
+# This needs cleaning up to delete the static libs and headers, but might be needed by v4l2rtspserver
+# So probably needs to be copied to a new location to be packaged
+# Change the install location back to DIST?
 $(PKGDIR): build.done
 	mkdir -p				$(PKGDIR)/DEBIAN
-	mkdir -p				$(PKGDIR)/etc/rc.d
-	mkdir -p				$(PKGDIR)/usr/local/etc
-	mkdir -p				$(PKGDIR)/usr/local/libexec
-	mkdir -p				$(PKGDIR)/usr/local/share/v4l2rtspserver/examples
+	mkdir -p 				$(PKGDIR)/usr
 	install -cm 0644 control		$(PKGDIR)/DEBIAN
 	sed -i s/@@ARCH@@/$(PKGARCH)/g		$(PKGDIR)/DEBIAN/control
 	sed -i s/@@NAME@@/$(PKGNAME)/g		$(PKGDIR)/DEBIAN/control
 	sed -i s/@@VERSION@@/$(PKGVERSION)/g	$(PKGDIR)/DEBIAN/control
-	install -cm 0755 postinst		$(PKGDIR)/DEBIAN
-	install -cm 0755 startup		$(PKGDIR)/etc/rc.d/S99-v4l2rtspserver
-	install -cm 0755 $(SRCDIR)/v4l2rtspserver $(PKGDIR)/usr/local/libexec
-	$(CROSS_COMPILE)strip			$(PKGDIR)/usr/local/libexec/*
-	install -cm 0644 v4l2rtspserver.conf	$(PKGDIR)/usr/local/share/v4l2rtspserver/examples
+	(cd DIST; tar --exclude='*.a' --exclude='include' --exclude=aclocal --exclude=man -cf - *) | (cd $(PKGDIR)/usr; tar -xf - )
 	touch $@
 
 package.deb: $(PKGFILE)
@@ -114,15 +63,21 @@ $(PKGFILE).downloaded:
 	wget -q -nc $(DOWNLOADPREFIX)/extensions/$(PKGFILE)
 	touch $(PKGFILE).downloaded
 
-# Remove working files
+build.done: alsa-lib/build.done alsa-utils/build.done
+	touch $@
+
+alsa-lib/build.done:
+	make -C alsa-lib
+
+alsa-utils/build.done: alsa-lib/build.done
+	make -C alsa-utils
 
 clean:
-	rm -rf $(PKGDIR)
-	if [ ! -f $(PKGFILE).downloaded ]; then rm -f $(PKGFILE) ; fi
-	make -C alsa clean
+	make -C alsa-utils clean
+	make -C alsa-lib clean
 
-reallyclean: clean
-	rm -rf build.done source.done $(SRCDIR) $(PKGFILE) $(PKGFILE).downloaded
-	make -C alsa reallyclean
+reallyclean:
+	make -C alsa-utils reallyclean
+	make -C alsa-lib reallyclean
+	rm -rf DIST $(PKGDIR) $(PKGFILE) build.done
 
-distclean: reallyclean

@@ -1,0 +1,7 @@
+Package: @@NAME@@
+Section: misc
+Priority: extra
+Maintainer: Faisal <faisal@pruxi.in>
+Architecture: @@ARCH@@
+Version: @@VERSION@@
+Description: Alsa libs and binaries for testing
