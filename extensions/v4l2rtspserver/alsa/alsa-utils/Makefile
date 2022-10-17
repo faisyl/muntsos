@@ -58,9 +58,9 @@ src.done: $(SRCDIST)
 
 build.done: src.done
 	cd $(SRCDIR) ; ./configure \
-		--prefix=`pwd`/../../DIST \
-		--with-alsa-prefix=`pwd`/../../DIST/lib \
-		--with-alsa-inc-prefix=`pwd`/../../DIST/include \
+		--with-alsa-prefix=`pwd`/../../DIST/usr/lib \
+		--with-alsa-inc-prefix=`pwd`/../../DIST/usr/include \
+		--prefix=`pwd`/../../DIST/usr \
 		--without-curses \
 		--disable-rpath --disable-alsamixer --disable-nls \
 		$(BUILDOS) $(TARGETOS) CC=$(CROSS_COMPILE)gcc CFLAGS=-I$(LIBSINCDIR)

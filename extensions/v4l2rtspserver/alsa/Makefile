@@ -40,12 +40,11 @@ default: package.deb
 # Change the install location back to DIST?
 $(PKGDIR): build.done
 	mkdir -p				$(PKGDIR)/DEBIAN
-	mkdir -p 				$(PKGDIR)/usr
 	install -cm 0644 control		$(PKGDIR)/DEBIAN
 	sed -i s/@@ARCH@@/$(PKGARCH)/g		$(PKGDIR)/DEBIAN/control
 	sed -i s/@@NAME@@/$(PKGNAME)/g		$(PKGDIR)/DEBIAN/control
 	sed -i s/@@VERSION@@/$(PKGVERSION)/g	$(PKGDIR)/DEBIAN/control
-	(cd DIST; tar --exclude='*.a' --exclude='include' --exclude=aclocal --exclude=man -cf - *) | (cd $(PKGDIR)/usr; tar -xf - )
+	(cd DIST; tar --exclude='*.a' --exclude='include' --exclude=aclocal --exclude=man -cf - *) | (cd $(PKGDIR); tar -xf - )
 	touch $@
 
 package.deb: $(PKGFILE)

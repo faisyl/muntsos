@@ -57,8 +57,13 @@ src.done: $(SRCDIST)
 # Compile sources
 
 build.done: src.done
-	cd $(SRCDIR) ; ./configure --prefix=`pwd`/../../DIST $(BUILDOS) $(TARGETOS) CC=$(CROSS_COMPILE)gcc CFLAGS=-I$(LIBSINCDIR)
+	cd $(SRCDIR) ; ./configure $(BUILDOS) $(TARGETOS) \
+		CC=$(CROSS_COMPILE)gcc CFLAGS=-I$(LIBSINCDIR) \
+		--prefix=`pwd`/../../DIST/usr \
+		--with-configdir=/usr/local/etc/alsa
 	make -C $(SRCDIR) install
+	mkdir -p `pwd`/../DIST/usr/local/etc/alsa
+	cp $(SRCDIR)/src/conf/alsa.conf `pwd`/../DIST/usr/local/etc/alsa/
 	touch $@
 
 # Remove working files
