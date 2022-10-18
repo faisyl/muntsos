@@ -46,7 +46,7 @@ CMAKEFLAGS	+= -DCMAKE_CXX_FLAGS=-I$(LIBSINCDIR)
 ifdef WITHALSA
 ALSAPKGNAME	= alsa
 ALSAPKGDIR	= $(PKGNAME)-$(OSNAME)
-CMAKEFLAGS += -DCMAKE_PREFIX_PATH=alsa/$(ALSAPKGDIR)
+CMAKEFLAGS 	+= -DCMAKE_PREFIX_PATH=$(shell pwd)/alsa/DIST/usr
 sound.check:
 	make -C alsa
 else
@@ -74,6 +74,7 @@ source.done: $(SRCDIST) sound.check
 # Compile sources
 
 build.done: source.done
+	patch $(SRCDIR)/CMakeLists.txt CMakeLists.patch
 	cd $(SRCDIR) && cmake $(CMAKEFLAGS)
 	# Workaround for a cmake bug
 	sed -i 's@/usr/lib/x86_64-linux-gnu@$(LIBSLIBDIR)@g' v4l2rtspserver.src/CMakeFiles/v4l2rtspserver.dir/link.txt

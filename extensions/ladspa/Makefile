@@ -79,6 +79,8 @@ build.done: src.done
 $(PKGDIR): build.done
 	mkdir -p					$(PKGDIR)/DEBIAN
 	install -cm 0644 control			$(PKGDIR)/DEBIAN
+	mkdir -p 					$(PKGDIR)/etc
+	install -cm 0644 asound.conf			$(PKGDIR)/etc
 	sed -i s/@@ARCH@@/$(PKGARCH)/g			$(PKGDIR)/DEBIAN/control
 	sed -i s/@@NAME@@/$(PKGNAME)/g			$(PKGDIR)/DEBIAN/control
 	sed -i s/@@VERSION@@/$(PKGVERSION)/g		$(PKGDIR)/DEBIAN/control

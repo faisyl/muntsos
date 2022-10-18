@@ -1,0 +1,13 @@
+--- v4l2rtspserver.src/CMakeLists.txt	2022-10-15 06:51:31.000000000 +0000
++++ v4l2rtspserver.src/CMakeLists.txt	2022-10-18 04:32:58.953772398 +0000
+@@ -110,8 +110,9 @@
+     MESSAGE("ALSA_FOUND = ${ALSA_FOUND}")
+     if (ALSA_LIBRARY)
+         add_definitions(-DHAVE_ALSA)
++	target_include_directories(libv4l2rtspserver PUBLIC inc ${ALSA_INCLUDE_DIRS})
+         target_link_libraries (${PROJECT_NAME} ${ALSA_LIBRARY}) 
+-        
++	target_include_directories(${PROJECT_NAME} PUBLIC inc ${ALSA_INCLUDE_DIRS})
+         SET(CPACK_DEBIAN_PACKAGE_DEPENDS ${CPACK_DEBIAN_PACKAGE_DEPENDS}libasound2,)	
+     endif ()
+ endif()
