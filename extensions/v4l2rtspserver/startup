@@ -30,8 +30,10 @@
 
 for port in $PORTLIST ; do
   for proto in tcp ; do
-    iptables -w -A INPUT -p $proto --dport $port -j ACCEPT
+    iptables -A INPUT -p $proto --dport $port -j ACCEPT
   done
 done
+
+[ x"$V4L2_CTRLS" == "x" ] || v4l2-ctl -c "$V4L2_CTRLS"
 
 /usr/local/libexec/v4l2rtspserver $PARAMS &
